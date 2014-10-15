@@ -1,0 +1,23 @@
+{
+  "name": "lyricz",
+  "version": "0.0.0",
+  "description": "scraper and parser",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dvrajan/lyricz.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dvrajan/lyricz/issues"
+  },
+  "homepage": "https://github.com/dvrajan/lyricz",
+  "dependencies": {
+    "cheerio": "^0.17.0",
+    "request": "^2.45.0"
+  }
+}
