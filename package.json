@@ -18,6 +18,7 @@
   "homepage": "https://github.com/dvrajan/lyricz",
   "dependencies": {
     "cheerio": "^0.17.0",
-    "request": "^2.45.0"
+    "request": "^2.45.0",
+    "lodash": "^2.4.1"
   }
 }

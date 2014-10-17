@@ -1,0 +1,31 @@
+@import url(http://fonts.googleapis.com/css?family=Tangerine:400,700);
+
+.container{
+	position: absolute;
+	bottom: 200;
+	right: 70;	
+	width:487px;										
+}
+
+.text{
+	font-family: 'Tangerine', cursive;		
+	text-align: center;
+	font-size: 3em;	
+}
+
+.text1{				
+	-webkit-animation-delay: .7s;				
+}
+
+.text2 {
+	-webkit-animation-delay: 1.3s;
+}
+
+body{
+	background: url("../images/black-and-white.jpg") no-repeat center center fixed;
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+	background-size: cover;
+	;
+}
