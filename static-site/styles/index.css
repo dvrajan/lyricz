@@ -15,10 +15,14 @@
 
 .text1{				
 	-webkit-animation-delay: .7s;				
+	-moz-animation-delay: .7s;		
+	animation-delay: .7s;
 }
 
 .text2 {
 	-webkit-animation-delay: 1.3s;
+	-moz-animation-delay: 1.3s;	
+	animation-delay: 1.3s;
 }
 
 body{
