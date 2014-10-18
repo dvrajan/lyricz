@@ -1,32 +1,82 @@
 var request = require('request');
 var cheerio = require("cheerio");
 var _ = require("lodash");
+var store = require("./store");
 
-var seedUrls = ['http://www.paadalvarigal.com/'];
+var seedUrls = ['http://www.paadalvarigal.com'];
 
-function crawler (){
-	this.filterLinks	= function (body){					
-				$ = cheerio.load(body);
-				var links = $("body").find("a").map(function(i, element){
-					return $(this).attr('href');
-				});
-				console.log(links.length);				
-				this.crawl(links);
-		}
+function Crawler (baseUrl){
+	this.crawledUrls = [];
+	this.baseUrl = baseUrl;
+}
 
-		this.fetch = function (url, callback){
-				request.get(url, function(error, response, body){
-						callback(body);
-				});
-		}
+	
+Crawler.prototype.filterLinks = function (body){					
+		$ = cheerio.load(body);
+		var links = [];
 
-		this.crawl = function (urls){
-			var self = this;
-			_.forEach(urls, function(url){
-					 self.fetch(url, self.filterLinks);							
-			});
-		}	
+		$("body").find("a").each(function(i, element){
+			links[i] = $(this).attr('href');
+		});
+		console.log(links.length);						
+		return links;
+};
+
+Crawler.prototype.fetch = function (url, callback){	  
+		var self = this;
+	  var newUrl = this.resolveUrl(url);	  
+	  if(newUrl == '')
+	  	return;
+		request.get(newUrl, function(error, response, body){
+
+				self.parse(body);
+				self.addToCrawledUrls(url);
+				var links = callback(body);								
+				self.crawl(links);
+		});
+};
+
+Crawler.prototype.parse = function(body){
+	$ = cheerio.load(body);
+	var lyrics = $("body").find("div#lyricscontent");
+	if(lyrics.length > 0){
+		var main = $("div#main");
+		var songName = main.find("h1 span[itemprop='name']").text();
+		var movieName = main.find("meta[itemprop='inAlbum']").attr('content');
+		var musicBy = $("head").find("meta[property='paadalvarigal:music_by']").attr('content');
+		var singers = $("head").find("meta[property='paadalvarigal:singers']").attr('content');		
+		store.addLyrics({"source": this.baseUrl, "song": songName, "movie": movieName, "music": musicBy,"singer": singers,"lyrics": lyrics.html()});		
+	}
+}
+
+Crawler.prototype.resolveUrl = function(url){	
+	if(url.indexOf(this.baseUrl) != -1){
+		return url;
+	} else if(url.indexOf("http://") != -1 || url.indexOf("https://") != -1) {
+		return '';
+	} else if(this.alreadyCrawled(url)){
+		return '';
+	}else {
+		return  this.baseUrl + url;		
+	}
+
+}
+
+Crawler.prototype.alreadyCrawled = function(url){
+	return this.crawledUrls.indexOf(url) > -1;
+}
+
+Crawler.prototype.addToCrawledUrls = function(url){
+	this.crawledUrls.push(url);
 }
 
 
-new crawler().crawl(seedUrls);
+Crawler.prototype.crawl = function (urls){
+	var self = this;
+	_.forEach(urls, function(url){			
+			 self.fetch(url, self.filterLinks);							
+	});
+};	
+
+
+new Crawler(seedUrls[0]).crawl(seedUrls);
