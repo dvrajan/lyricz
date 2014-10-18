@@ -18,7 +18,6 @@ Crawler.prototype.filterLinks = function (body){
 		$("body").find("a").each(function(i, element){
 			links[i] = $(this).attr('href');
 		});
-		console.log(links.length);						
 		return links;
 };
 
@@ -45,6 +44,7 @@ Crawler.prototype.parse = function(body){
 		var movieName = main.find("meta[itemprop='inAlbum']").attr('content');
 		var musicBy = $("head").find("meta[property='paadalvarigal:music_by']").attr('content');
 		var singers = $("head").find("meta[property='paadalvarigal:singers']").attr('content');		
+		console.log(songName + '-' + movieName);
 		store.addLyrics({"source": this.baseUrl, "song": songName, "movie": movieName, "music": musicBy,"singer": singers,"lyrics": lyrics.html()});		
 	}
 }
