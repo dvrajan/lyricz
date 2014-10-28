@@ -14,7 +14,6 @@ function Crawler (baseUrl){
 Crawler.prototype.filterLinks = function (body){					
 		$ = cheerio.load(body);
 		var links = [];
-
 		$("body").find("a").each(function(i, element){
 			links[i] = $(this).attr('href');
 		});
@@ -26,12 +25,8 @@ Crawler.prototype.fetch = function (url, callback){
 	  var newUrl = this.resolveUrl(url);	  
 	  if(newUrl == '')
 	  	return;
-		request.get(newUrl, function(error, response, body){
-
-				self.parse(body);
-				self.addToCrawledUrls(url);
-				var links = callback(body);								
-				self.crawl(links);
+		request.get(newUrl, function(error, response, body){				
+				callback(body);												
 		});
 };
 
@@ -73,9 +68,13 @@ Crawler.prototype.addToCrawledUrls = function(url){
 
 Crawler.prototype.crawl = function (urls){
 	var self = this;
-	_.forEach(urls, function(url){			
-			 self.fetch(url, self.filterLinks);							
-	});
+	while( (url = seedUrls.pop()) ){
+			 self.fetch(url, function(body){
+			 		self.parse(body);
+					self.addToCrawledUrls(url);
+					self.filterLinks(body);
+			 });	
+	}							
 };	
 
 
