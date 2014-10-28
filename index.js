@@ -1,12 +1,13 @@
+require('look').start();
 var request = require('request');
 var cheerio = require("cheerio");
 var _ = require("lodash");
 var store = require("./store");
+var q= require('queue');
+var queue = new q();
 var EventEmitter = require('events').EventEmitter;
 var emitter = new EventEmitter();
 var seedUrls = ['http://www.paadalvarigal.com'];
-
-
 
 crawledUrls = [];
 baseUrl = seedUrls[0];
@@ -24,7 +25,7 @@ function filterLinks(body){
 function fetch(url, callback){	  		
 	  var newUrl = resolveUrl(url);	  
 	  if(newUrl == '')
-	  	return;
+	  	return 'invalid';
 		request.get(newUrl, function(error, response, body){				
 				callback(body);												
 		});
@@ -49,9 +50,7 @@ function resolveUrl (url){
 		return url;
 	} else if(url.indexOf("http://") != -1 || url.indexOf("https://") != -1) {
 		return '';
-	} else if(alreadyCrawled(url)){
-		return '';
-	}else {
+	} else {
 		return  baseUrl + url;		
 	}
 
@@ -67,22 +66,34 @@ function addToCrawledUrls(url){
 
 
 function crawl (url){	
-		fetch(url, function(body){			 		
+		var err = fetch(url, function(body){			 		
 			 		parse(body);
 					addToCrawledUrls(url);
 					var links = filterLinks(body);					
-					_(links).forEach(function(link){
-							emitter.emit('link_found', link);
-					});
+					_(links).forEach(function(link){							
+							queue.push(link);						
+					});					
+					pushed();
 		});
-			
+		if(err == 'invalid' && queue.length > 0){
+			pushed();
+		}
+		
 };	
 
-emitter.on('link_found', function(link){			
-	crawl(link);		
+function pushed(){
+		var url; 
+		do{
+			url = queue.pop()
+		}while(alreadyCrawled(url));
+		emitter.emit('pushed', url)		
+}
+
+emitter.on('pushed', function(url){
+	console.log(queue.length);
+	crawl(url)
 });
 
-
-
-crawl(seedUrls[0]);
+queue.push(seedUrls[0]);
+pushed();
 
