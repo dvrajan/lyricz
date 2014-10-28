@@ -2,7 +2,8 @@ var request = require('request');
 var cheerio = require("cheerio");
 var _ = require("lodash");
 var store = require("./store");
-var emitter = require('events').EventEmitter;
+var EventEmitter = require('events').EventEmitter;
+var emitter = new EventEmitter();
 var seedUrls = ['http://www.paadalvarigal.com'];
 
 function Crawler (baseUrl){
@@ -67,21 +68,19 @@ Crawler.prototype.addToCrawledUrls = function(url){
 
 
 Crawler.prototype.crawl = function (urls){
-	var self = this;
-	var url = seedUrls.pop();
-	while(url != undefined){
-			 self.fetch(url, function(body){
-			 		console.log("Hello");
+	var self = this;	
+	_(urls).forEach(function(url){
+			self.fetch(url, function(body){			 		
 			 		self.parse(body);
 					self.addToCrawledUrls(url);
-					var links = self.filterLinks(body);
+					var links = self.filterLinks(body);					
 					emitter.emit('links_found', links);
-			 });
-			 url = seedUrls.pop();	
-	}							
+			 });			 								
+	});
+			 
 };	
 
-emitter.on('links_found', function(links){
+emitter.on('links_found', function(links){	
 	new Crawler(seedUrls[0]).crawl(links);
 });
 
