@@ -1,4 +1,4 @@
-var request = require('sync-request');
+var request = require('request');
 var cheerio = require("cheerio");
 var _ = require("lodash");
 var store = require("./store");
@@ -21,13 +21,18 @@ Crawler.prototype.filterLinks = function (body){
 		return links;
 };
 
-Crawler.prototype.fetch = function (url, callback){	  		
+Crawler.prototype.fetch = function (url, callback){	  
+		var self = this;
 	  var newUrl = this.resolveUrl(url);	  
 	  if(newUrl == '')
-	  	return '';	  
-		 var response =  request('GET', newUrl);		
-		 this.addToCrawledUrls(newUrl);
-		 return response.getBody();
+	  	return;
+		request.get(newUrl, function(error, response, body){
+
+				self.parse(body);
+				self.addToCrawledUrls(url);
+				var links = callback(body);								
+				self.crawl(links);
+		});
 };
 
 Crawler.prototype.parse = function(body){
@@ -45,11 +50,11 @@ Crawler.prototype.parse = function(body){
 }
 
 Crawler.prototype.resolveUrl = function(url){	
-	if(this.alreadyCrawled(url)){
-		return '';
-	} else if(url.indexOf(this.baseUrl) != -1){
+	if(url.indexOf(this.baseUrl) != -1){
 		return url;
 	} else if(url.indexOf("http://") != -1 || url.indexOf("https://") != -1) {
+		return '';
+	} else if(this.alreadyCrawled(url)){
 		return '';
 	}else {
 		return  this.baseUrl + url;		
@@ -66,20 +71,12 @@ Crawler.prototype.addToCrawledUrls = function(url){
 }
 
 
-Crawler.prototype.crawl = function (url){					
-			var body = this.fetch(url);						
-			if(body == '')
-				return;
-			this.parse(body);			
-			var links = this.filterLinks(body);							
-			_(links).forEach(function(element){
-				seedUrls.push(element);
-			});					
+Crawler.prototype.crawl = function (urls){
+	var self = this;
+	_.forEach(urls, function(url){			
+			 self.fetch(url, self.filterLinks);							
+	});
 };	
 
 
-var crawler = new Crawler(seedUrls[0]);
-
-while(seedUrls.length > 0){	
-	crawler.crawl(seedUrls.pop());	
-}
+new Crawler(seedUrls[0]).crawl(seedUrls);
