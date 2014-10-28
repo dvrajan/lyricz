@@ -2,7 +2,7 @@ var request = require('request');
 var cheerio = require("cheerio");
 var _ = require("lodash");
 var store = require("./store");
-
+var emitter = require('events').EventEmitter;
 var seedUrls = ['http://www.paadalvarigal.com'];
 
 function Crawler (baseUrl){
@@ -40,7 +40,7 @@ Crawler.prototype.parse = function(body){
 		var musicBy = $("head").find("meta[property='paadalvarigal:music_by']").attr('content');
 		var singers = $("head").find("meta[property='paadalvarigal:singers']").attr('content');		
 		console.log(songName + '-' + movieName);
-		store.addLyrics({"source": this.baseUrl, "song": songName, "movie": movieName, "music": musicBy,"singer": singers,"lyrics": lyrics.html()});		
+		// store.addLyrics({"source": this.baseUrl, "song": songName, "movie": movieName, "music": musicBy,"singer": singers,"lyrics": lyrics.html()});		
 	}
 }
 
@@ -68,14 +68,22 @@ Crawler.prototype.addToCrawledUrls = function(url){
 
 Crawler.prototype.crawl = function (urls){
 	var self = this;
-	while( (url = seedUrls.pop()) ){
+	var url = seedUrls.pop();
+	while(url != undefined){
 			 self.fetch(url, function(body){
+			 		console.log("Hello");
 			 		self.parse(body);
 					self.addToCrawledUrls(url);
-					self.filterLinks(body);
-			 });	
+					var links = self.filterLinks(body);
+					emitter.emit('links_found', links);
+			 });
+			 url = seedUrls.pop();	
 	}							
 };	
+
+emitter.on('links_found', function(links){
+	new Crawler(seedUrls[0]).crawl(links);
+});
 
 
 new Crawler(seedUrls[0]).crawl(seedUrls);
