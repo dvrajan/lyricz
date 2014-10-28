@@ -2,9 +2,11 @@ var request = require('request');
 var cheerio = require("cheerio");
 var _ = require("lodash");
 var store = require("./store");
+var memwatch = require('memwatch');
 var EventEmitter = require('events').EventEmitter;
 var emitter = new EventEmitter();
 var seedUrls = ['http://www.paadalvarigal.com'];
+
 
 function Crawler (baseUrl){
 	this.crawledUrls = [];
@@ -81,7 +83,9 @@ Crawler.prototype.crawl = function (urls){
 };	
 
 emitter.on('links_found', function(links){	
+	var hd = new memwatch.HeapDiff();
 	new Crawler(seedUrls[0]).crawl(links);
+	console.log(hd.end());
 });
 
 
