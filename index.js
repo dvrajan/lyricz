@@ -1,4 +1,3 @@
-require('look').start();
 var request = require('request');
 var cheerio = require("cheerio");
 var _ = require("lodash");
@@ -9,12 +8,11 @@ var EventEmitter = require('events').EventEmitter;
 var emitter = new EventEmitter();
 var seedUrls = ['http://www.paadalvarigal.com'];
 
-crawledUrls = [];
-baseUrl = seedUrls[0];
+var crawledUrls = [];
+var baseUrl = seedUrls[0];
 
 	
-function filterLinks(body){					
-		$ = cheerio.load(body);
+function filterLinks($){					
 		var links = [];
 		$("body").find("a").each(function(i, element){
 			links[i] = $(this).attr('href');
@@ -31,8 +29,7 @@ function fetch(url, callback){
 		});
 };
 
-function parse(body){
-	$ = cheerio.load(body);
+function parse($, url){
 	var lyrics = $("body").find("div#lyricscontent");
 	if(lyrics.length > 0){
 		var main = $("div#main");
@@ -40,8 +37,8 @@ function parse(body){
 		var movieName = main.find("meta[itemprop='inAlbum']").attr('content');
 		var musicBy = $("head").find("meta[property='paadalvarigal:music_by']").attr('content');
 		var singers = $("head").find("meta[property='paadalvarigal:singers']").attr('content');		
-		console.log(songName + '-' + movieName);
-		// store.addLyrics({"source": this.baseUrl, "song": songName, "movie": movieName, "music": musicBy,"singer": singers,"lyrics": lyrics.html()});		
+		console.log(songName + '-' + movieName + '-' + url);
+		 store.addLyrics({"source": baseUrl, "song": songName, "movie": movieName, "music": musicBy,"singer": singers,"lyrics": lyrics.html()});		
 	}
 }
 
@@ -66,10 +63,11 @@ function addToCrawledUrls(url){
 
 
 function crawl (url){	
-		var err = fetch(url, function(body){			 		
-			 		parse(body);
+		var err = fetch(url, function(body){
+					var $ = cheerio.load(body);			 		
+			 		parse($, url);
 					addToCrawledUrls(url);
-					var links = filterLinks(body);					
+					var links = filterLinks($);					
 					_(links).forEach(function(link){							
 							queue.push(link);						
 					});					
@@ -90,7 +88,6 @@ function pushed(){
 }
 
 emitter.on('pushed', function(url){
-	console.log(queue.length);
 	crawl(url)
 });
 

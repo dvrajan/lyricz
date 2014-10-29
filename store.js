@@ -13,7 +13,6 @@ module.exports = {
 				body: data
 				},
 				function(error, response){
-					console.log("Saved:" + response);
 			});
 		}
 	};
