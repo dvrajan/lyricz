@@ -64,6 +64,7 @@ function addToCrawledUrls(url){
 
 function crawl (url){	
 		var err = fetch(url, function(body){
+					try{
 					var $ = cheerio.load(body);			 		
 			 		parse($, url);
 					addToCrawledUrls(url);
@@ -71,7 +72,11 @@ function crawl (url){
 					_(links).forEach(function(link){							
 							queue.push(link);						
 					});					
-					pushed();
+				} catch(err){
+					console.log("error for "+ url);
+				}					
+				pushed();
+
 		});
 		if(err == 'invalid' && queue.length > 0){
 			pushed();
@@ -100,4 +105,3 @@ emitter.on('pushed', function(url){
 
 queue.push(seedUrls[0]);
 pushed();
-
