@@ -79,11 +79,18 @@ function crawl (url){
 		
 };	
 
+function stripQueryParams(url){
+	var parts = url.split('?');
+	return parts[0];
+}
+
 function pushed(){
 		var url; 
+		var strippedUrl;
 		do{
-			url = queue.pop()
-		}while(alreadyCrawled(url));
+		   url = queue.pop()
+			 strippedUrl = stripQueryParams(url); 
+		}while(alreadyCrawled(strippedUrl));
 		emitter.emit('pushed', url)		
 }
 
