@@ -94,6 +94,9 @@ function pushed(){
 		var strippedUrl;
 		do{
 		   url = queue.pop()
+		   if(url == undefined){
+		   	 continue;
+		   }
 			 strippedUrl = stripQueryParams(url); 
 		}while(alreadyCrawled(strippedUrl));
 		emitter.emit('pushed', url)		
