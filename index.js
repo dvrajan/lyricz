@@ -74,9 +74,10 @@ function crawl (url){
 					});					
 				} catch(err){
 					console.log("error for "+ url);
-				}					
-				pushed();
-
+				} finally {
+					pushed();	
+				}
+			
 		});
 		if(err == 'invalid' && queue.length > 0){
 			pushed();
