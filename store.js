@@ -3,11 +3,12 @@ var elasticsearch = require("elasticsearch");
 var client = new elasticsearch.Client({
   host: 'lyricz.in:9200'
 });
+var lyricz_index = 'main';
 
 module.exports = {
 		addLyrics:	function(data){
 			client.create({
-				index: 'main',
+				index: lyricz_index,
 				type: 'lyrics',
 				id: uuid.v1(),
 				body: data
@@ -16,14 +17,21 @@ module.exports = {
 			});
 		},
 
-    getLyricsFromUrlAndCallback: function(url, callback){
-      client.search({
-        q: 'url:'+url
-      }).then(function (body) {
-          callback(body.hits.total)
-      }, function (error) {
-          console.trace(error.message);
-      });
+    getLyricsFromUrlAndCallback: function(lyricsUrl, callback){
+      client.count({
+          index: lyricz_index,
+          body: {
+            filtered: {
+                filter: {
+                  term: {
+                    url: lyricsUrl
+                    }
+                }
+              }
+            }
+          }, function (err, response) {
+              callback(response.count);
+            });
     }
 
 	};

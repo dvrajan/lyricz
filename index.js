@@ -47,11 +47,13 @@ function parse($, url){
 		var movieName = main.find("meta[itemprop='inAlbum']").attr('content');
 		var musicBy = $("head").find("meta[property='paadalvarigal:music_by']").attr('content');
 		var singers = $("head").find("meta[property='paadalvarigal:singers']").attr('content');
-		console.log(songName + '-' + movieName + '-' + url);
+
 		store.getLyricsFromUrlAndCallback(url, function(count){
-			if(count == 0)
+			if(count == 0){
+				console.log(songName + '-' + movieName + '-' + url);
 				store.addLyrics({"source": baseUrl, "url": url, "song": songName, "movie": movieName, "music": musicBy,"singer": singers,"lyrics": lyrics.html()});
-		});		
+			}
+		});
 	}
 }
 
