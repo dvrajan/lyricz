@@ -20,7 +20,11 @@ function filterLinks($){
 			return resolvedUrl.indexOf(baseUrl) != -1;
 		});
 		$(filteredLinks).each(function(i, element){
-			urls[i] = $(this).attr('href');
+			var url = $(this).attr('href');
+			var strippedUrl = stripQueryParams(url);
+			if(!alreadyCrawled(strippedUrl)){
+				urls[i] = strippedUrl;
+			}
 		});
 		return urls;
 };
@@ -100,16 +104,7 @@ function stripQueryParams(url){
 }
 
 function crawlNextUrl(){
-		var url;
-		var strippedUrl;
-		do{
-		   url = queue.pop();
-			console.log(url);
-		   if(url == undefined){
-		   	 continue;
-		   }
-			 strippedUrl = stripQueryParams(url);
-		}while(alreadyCrawled(strippedUrl));
+		var url = queue.pop();		
 		emitter.emit('pushed', url)
 }
 
