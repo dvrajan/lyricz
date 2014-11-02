@@ -13,11 +13,16 @@ var baseUrl = seedUrls[0];
 
 
 function filterLinks($){
-		var links = [];
-		$("body").find("a").each(function(i, element){
-			links[i] = $(this).attr('href');
+		var urls = [];
+		var links = $("body").find("a");
+		var filteredLinks  = _.filter(links, function(link){
+			var resolvedUrl = resolveUrl($(link).attr('href'));
+			return resolvedUrl.indexOf(baseUrl) != -1;
 		});
-		return links;
+		$(filteredLinks).each(function(i, element){
+			urls[i] = $(this).attr('href');
+		});
+		return urls;
 };
 
 function fetch(url, callback){
@@ -98,7 +103,8 @@ function crawlNextUrl(){
 		var url;
 		var strippedUrl;
 		do{
-		   url = queue.pop()
+		   url = queue.pop();
+			console.log(url);
 		   if(url == undefined){
 		   	 continue;
 		   }
