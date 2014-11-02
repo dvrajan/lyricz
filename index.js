@@ -23,9 +23,13 @@ function filterLinks($){
 function fetch(url, callback){	  		
 	  var newUrl = resolveUrl(url);	  
 	  if(newUrl == '')
-	  	return 'invalid';
-		request.get(newUrl, function(error, response, body){				
-				callback(body);												
+	  	throw 'invalid url';
+		request.get(newUrl, function(error, response, body){	
+			if(!error && response.statusCode == 200){			
+				callback(body);			
+			} else {
+				throw error;
+			}									
 		});
 };
 
@@ -63,23 +67,21 @@ function addToCrawledUrls(url){
 
 
 function crawl (url){	
-		var err = fetch(url, function(body){
-					try{
+	try{
+	       fetch(url, function(body){
 					var $ = cheerio.load(body);			 		
 			 		parse($, url);
 					addToCrawledUrls(url);
 					var links = filterLinks($);					
-					_(links).forEach(function(link){							
+					_(links).forEach(function(link){	
+							console.log('pushing')						
 							queue.push(link);						
 					});					
-				} catch(err){
-					console.log("error for "+ url);
-				} finally {
-					pushed();	
-				}
-			
 		});
-		if(err == 'invalid' && queue.length > 0){
+	} catch (err){
+		console.log("Error for " + url);
+	}
+		if(queue.length > 0){
 			pushed();
 		}
 		
@@ -104,6 +106,7 @@ function pushed(){
 }
 
 emitter.on('pushed', function(url){
+	console.log('Crawling');
 	crawl(url)
 });
 
