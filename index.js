@@ -29,7 +29,7 @@ function fetch(url, callback){
 			if(!error && response.statusCode == 200){
 				callback(body);
 			} else {
-				throw error;
+				callback(null);
 			}
 		});
 };
@@ -70,19 +70,21 @@ function addToCrawledUrls(url){
 function crawl (url){
 	try{
 	       fetch(url, function(body){
-					var $ = cheerio.load(body);
-			 		parse($, url);
-					addToCrawledUrls(url);
-					var links = filterLinks($);
-					_(links).forEach(function(link){
-							queue.push(link);
-					});
-					pushed();
+					if(body != null){
+						var $ = cheerio.load(body);
+				 		parse($, url);
+						addToCrawledUrls(url);
+						var links = filterLinks($);
+						_(links).forEach(function(link){
+								queue.push(link);
+						});
+				 }
+					crawlNextUrl();
 		});
 	} catch (err){
 		console.log("Error for " + url);
 		if(queue.length > 0){
-		pushed();
+		crawlNextUrl();
 		}
 	}
 };
@@ -92,7 +94,7 @@ function stripQueryParams(url){
 	return parts[0];
 }
 
-function pushed(){
+function crawlNextUrl(){
 		var url;
 		var strippedUrl;
 		do{
@@ -110,4 +112,4 @@ emitter.on('pushed', function(url){
 });
 
 queue.push(seedUrls[0]);
-pushed();
+crawlNextUrl();
