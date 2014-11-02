@@ -10,7 +10,7 @@ var seedUrls = ['http://www.paadalvarigal.com'];
 
 var crawledUrls = [];
 var baseUrl = seedUrls[0];
-
+var queueCleanLimit=5000;
 
 function filterLinks($){
 		var urls = [];
@@ -48,7 +48,9 @@ function parse($, url){
 		var musicBy = $("head").find("meta[property='paadalvarigal:music_by']").attr('content');
 		var singers = $("head").find("meta[property='paadalvarigal:singers']").attr('content');
 		console.log(songName + '-' + movieName + '-' + url);
+		if(!alreadyCrawled(url)){
 		 store.addLyrics({"source": baseUrl, "url": url, "song": songName, "movie": movieName, "music": musicBy,"singer": singers,"lyrics": lyrics.html()});
+	  }
 	}
 }
 
@@ -99,7 +101,14 @@ function crawlNextUrl(){
 		emitter.emit('pushed', url)
 }
 
+function clean(){
+ 	_().forEach()
+}
+
 emitter.on('pushed', function(url){
+	if(queue.length >= queueCleanLimit){
+		clean();
+	}
 	crawl(url)
 });
 
