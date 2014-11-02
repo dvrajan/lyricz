@@ -14,5 +14,16 @@ module.exports = {
 				},
 				function(error, response){
 			});
-		}
+		},
+
+    getLyricsFromUrlAndCallback: function(url, callback){
+      client.search({
+        q: 'url:'+url
+      }).then(function (body) {
+          callback(body.hits.total)
+      }, function (error) {
+          console.trace(error.message);
+      });
+    }
+
 	};

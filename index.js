@@ -48,9 +48,10 @@ function parse($, url){
 		var musicBy = $("head").find("meta[property='paadalvarigal:music_by']").attr('content');
 		var singers = $("head").find("meta[property='paadalvarigal:singers']").attr('content');
 		console.log(songName + '-' + movieName + '-' + url);
-		if(!alreadyCrawled(url)){
-		 store.addLyrics({"source": baseUrl, "url": url, "song": songName, "movie": movieName, "music": musicBy,"singer": singers,"lyrics": lyrics.html()});
-	  }
+		store.getLyricsFromUrlAndCallback(url, function(count){
+			if(count == 0)
+				store.addLyrics({"source": baseUrl, "url": url, "song": songName, "movie": movieName, "music": musicBy,"singer": singers,"lyrics": lyrics.html()});
+		});		
 	}
 }
 
