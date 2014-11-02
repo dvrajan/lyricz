@@ -23,8 +23,8 @@ module.exports = {
           body: {
             filtered: {
                 filter: {
-                  term: {
-                    url: lyricsUrl
+                  terms: {
+                    url:  [ '\'' + lyricsUrl +'\'']
                     }
                 }
               }
