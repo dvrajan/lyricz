@@ -48,7 +48,7 @@ function parse($, url){
 		var musicBy = $("head").find("meta[property='paadalvarigal:music_by']").attr('content');
 		var singers = $("head").find("meta[property='paadalvarigal:singers']").attr('content');
 		console.log(songName + '-' + movieName + '-' + url);
-		 store.addLyrics({"source": baseUrl, "song": songName, "movie": movieName, "music": musicBy,"singer": singers,"lyrics": lyrics.html()});
+		 store.addLyrics({"source": baseUrl, "url": url, "song": songName, "movie": movieName, "music": musicBy,"singer": singers,"lyrics": lyrics.html()});
 	}
 }
 
